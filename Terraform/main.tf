@@ -1,3 +1,12 @@
+terraform {
+  backend "azurerm" {
+    resource_group_name   = "terraformstate-rg"
+    storage_account_name  = "tfstatevotingapp"
+    container_name        = "tfstate"
+    key                   = "terraform.tfstate"
+  }
+}
+
 provider "azurerm" {
   features {}
   subscription_id = "445703eb-5438-48ba-b385-2a6b9fcbab5a"
