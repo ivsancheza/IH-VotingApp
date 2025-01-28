@@ -1,9 +1,9 @@
 terraform {
   backend "azurerm" {
-    resource_group_name   = "terraformstate-rg"
-    storage_account_name  = "tfstatevotingapp"
-    container_name        = "tfstate"
-    key                   = "terraform.tfstate"
+    resource_group_name  = "terraformstate-rg"
+    storage_account_name = "tfstatevotingapp"
+    container_name       = "tfstate"
+    key                  = "terraform.tfstate"
   }
 }
 
@@ -13,57 +13,62 @@ provider "azurerm" {
 }
 
 module "vnet" {
-  source = "./vnet"
-  vnet_name = "votingapp-vnet"
-  address_space = ["10.0.0.0/16"]
+  source              = "./vnet"
+  vnet_name           = "votingapp-vnet"
+  address_space       = ["10.0.0.0/16"]
   resource_group_name = var.resource_group_name
-  location = var.location
+  location            = var.location
 }
 
 module "vm_vote" {
-  source = "./vm_vote"
-  vm_name = "vm-vote"
-  vm_size = "Standard_B1s"
-  admin_username = "adminuser"
-  admin_password = "P@ssw0rd123"
+  source              = "./vm_vote"
+  vm_name             = "vm-vote"
+  vm_size             = "Standard_B1s"
+  admin_username      = "adminuser"
+  admin_password      = "P@ssw0rd123"
   resource_group_name = var.resource_group_name
-  location = var.location
-  public_subnet_id = module.vnet.public_subnet_id
+  location            = var.location
+  public_subnet_id    = module.vnet.public_subnet_id
+  nsg_vote_id         = module.nsg.nsg_vote_id
 }
 
 module "vm_result" {
-  source = "./vm_result"
-  vm_name = "vm-result"
-  vm_size = "Standard_B1s"
-  admin_username = "adminuser"
-  admin_password = "P@ssw0rd123"
+  source              = "./vm_result"
+  vm_name             = "vm-result"
+  vm_size             = "Standard_B1s"
+  admin_username      = "adminuser"
+  admin_password      = "P@ssw0rd123"
   resource_group_name = var.resource_group_name
-  location = var.location
-  public_subnet_id = module.vnet.public_subnet_id
+  location            = var.location
+  public_subnet_id    = module.vnet.public_subnet_id
+  nsg_result_id       = module.nsg.nsg_result_id
 }
 
 module "vm_db" {
-  source = "./vm_db"
-  vm_name = "vm-db"
-  vm_size = "Standard_B1s"
-  admin_username = "adminuser"
-  admin_password = "P@ssw0rd123"
+  source              = "./vm_db"
+  vm_name             = "vm-db"
+  vm_size             = "Standard_B1s"
+  admin_username      = "adminuser"
+  admin_password      = "P@ssw0rd123"
   resource_group_name = var.resource_group_name
-  location = var.location
-  private_subnet_id = module.vnet.private_subnet_id
+  location            = var.location
+  private_subnet_id   = module.vnet.private_subnet_id
+  nsg_db_id           = module.nsg.nsg_db_id
 }
 
 module "nsg" {
-  source = "./nsg"
+  source              = "./nsg"
   resource_group_name = var.resource_group_name
-  location = var.location
+  location            = var.location
 }
 
-module "app_gateway" {
-  source = "./app_gateway"
-  ag_name = "app-gateway"
-  resource_group_name = var.resource_group_name
-  location = var.location
-  public_subnet_id = module.vnet.public_subnet_id
-  app_gateway_subnet_id = module.vnet.app_gateway_subnet_id
-}
+# module "app_gateway" {
+#   source                = "./app_gateway"
+#   ag_name               = "app-gateway"
+#   resource_group_name   = var.resource_group_name
+#   location              = var.location
+#   public_subnet_id      = module.vnet.public_subnet_id
+#   app_gateway_subnet_id = module.vnet.app_gateway_subnet_id
+#   vote_nic_id           = module.vm_vote.vote_nic_id
+#   result_nic_id         = module.vm_result.result_nic_id
+# }

@@ -22,3 +22,13 @@ variable "app_gateway_subnet_id" {
   description = "The ID of the Application Gateway subnet"
   type        = string
 }
+
+variable "result_nic_id" {
+  description = "The result NIC ID"
+  type = string
+}
+
+variable "vote_nic_id" {
+  description = "The vote NIC ID"
+  type = string
+}

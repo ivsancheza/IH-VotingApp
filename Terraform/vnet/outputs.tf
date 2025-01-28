@@ -6,6 +6,6 @@ output "private_subnet_id" {
   value = azurerm_subnet.private.id
 }
 
-output "app_gateway_subnet_id" {
-  value = azurerm_subnet.app_gateway.id
-}
+# output "app_gateway_subnet_id" {
+#   value = azurerm_subnet.app_gateway.id
+# }

@@ -1,3 +1,11 @@
+resource "azurerm_public_ip" "example" {
+  name                = "public-db-ip"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+}
+
 resource "azurerm_network_interface" "db" {
   name                = "nic-db"
   location            = var.location
@@ -6,6 +14,7 @@ resource "azurerm_network_interface" "db" {
   ip_configuration {
     name                          = "internal"
     subnet_id                     = var.private_subnet_id
+    public_ip_address_id          = azurerm_public_ip.example.id
     private_ip_address_allocation = "Dynamic"
   }
 }
@@ -34,4 +43,9 @@ resource "azurerm_linux_virtual_machine" "db" {
     sku       = "18.04-LTS"
     version   = "latest"
   }
+}
+
+resource "azurerm_network_interface_security_group_association" "nic_nsg_db_association" {
+  network_interface_id      = azurerm_network_interface.db.id
+  network_security_group_id = var.nsg_db_id
 }

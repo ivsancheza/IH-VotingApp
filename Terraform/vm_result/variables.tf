@@ -32,3 +32,8 @@ variable "public_subnet_id" {
   description = "The ID of the public subnet"
   type        = string
 }
+
+variable "nsg_result_id" {
+  description = "The NSG ID for result app"
+  type        = string
+}

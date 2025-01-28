@@ -32,3 +32,8 @@ variable "private_subnet_id" {
   description = "The ID of the private subnet"
   type        = string
 }
+
+variable "nsg_db_id" {
+  description = "The NSG ID for db app"
+  type        = string
+}
