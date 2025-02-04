@@ -1,0 +1,9 @@
+[vms]
+vote ansible_host=13.81.100.16
+result ansible_host=13.81.100.36
+db ansible_host=13.81.101.146
+
+[all:vars]
+ansible_connection=ssh
+ansible_user=adminuser
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
