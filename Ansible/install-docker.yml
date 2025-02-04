@@ -42,6 +42,18 @@
       pip:
         name: docker
 
+    - name: Create frontend network
+      community.docker.docker_network:
+        name: frontend
+        driver: bridge
+      when: inventory_hostname in ['vote', 'worker']
+
+    - name: Create backend network
+      community.docker.docker_network:
+        name: backend
+        driver: bridge
+      when: inventory_hostname in ['db', 'worker', 'result']
+
     - name: Pull Docker image from Docker Hub
       community.docker.docker_image:
         name: "ivsancheza/example-voting-app-result-app"
@@ -55,8 +67,8 @@
         state: started
         ports:
           - "80:80"
-        published_ports:
-          - "80:80"
+        networks:
+          - name: backend
       when: inventory_hostname == 'result'
 
     - name: Pull Docker image from Docker Hub
@@ -72,8 +84,8 @@
         state: started
         ports:
           - "80:80"
-        published_ports:
-          - "80:80"
+        networks:
+          - name: frontend
       when: inventory_hostname == 'vote'
 
     - name: Pull Docker image from Docker Hub
@@ -87,6 +99,11 @@
         name: "redis"
         image: "ivsancheza/redis"
         state: started
+        ports:
+          - "6379:6379"
+        networks:
+          - name: frontend
+          - name: backend
       when: inventory_hostname == 'db'
       
     - name: Pull Docker image from Docker Hub
@@ -104,6 +121,10 @@
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: db
+        ports:
+          - "5432:5432"
+        networks:
+          - name: backend
       when: inventory_hostname == 'db'
       
     - name: Pull Docker image from Docker Hub
@@ -117,5 +138,14 @@
         name: "worker"
         image: "ivsancheza/example-voting-app-worker-app"
         state: started
+        networks:
+          - name: frontend
+          - name: backend
       when: inventory_hostname == 'db'
       
+    - name: Add entry for Redis in /etc/hosts on vote VM
+      lineinfile:
+        path: /etc/hosts
+        line: "10.0.2.4 redis"
+        state: present
+      when: inventory_hostname == 'vote'

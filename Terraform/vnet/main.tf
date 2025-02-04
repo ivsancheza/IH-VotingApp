@@ -33,8 +33,21 @@ resource "azurerm_route" "public_to_private" {
   next_hop_type          = "VnetLocal"
 }
 
+resource "azurerm_route" "private_to_public" {
+  name                   = "privateToPublic"
+  resource_group_name    = azurerm_virtual_network.main.resource_group_name
+  route_table_name       = azurerm_route_table.main.name
+  address_prefix         = "10.0.1.0/24"
+  next_hop_type          = "VnetLocal"
+}
+
 resource "azurerm_subnet_route_table_association" "public" {
   subnet_id      = azurerm_subnet.public.id
+  route_table_id = azurerm_route_table.main.id
+}
+
+resource "azurerm_subnet_route_table_association" "private" {
+  subnet_id      = azurerm_subnet.private.id
   route_table_id = azurerm_route_table.main.id
 }
 
